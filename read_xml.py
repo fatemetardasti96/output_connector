@@ -9,7 +9,7 @@ from added_capacity import added_capacity
 
 
 def zero_appender(timeserie, start_timeindex, year):
-    calender_dict = hour_iterator(year,1,1,0,0,year,12,30,1,0)
+    calender_dict = hour_iterator(year,1,1,0,0,year+1,1,1,0,0)
     time_index = calender_dict[start_timeindex]
     zero_timeserie = [0 for i in range(len(calender_dict))]
     zero_timeserie[time_index:time_index+len(timeserie)] = timeserie
@@ -25,7 +25,8 @@ def get_dict(**kwargs):
     scenario = kwargs["scenario"]
     year = kwargs["year"]
     if os.path.isfile(kwargs["file"]):
-        print("File exists, now parsing!")
+        print(kwargs["file"])
+        print("File exists {}, now parsing!".format(kwargs["file"]))
         # parse from xml, working with xml trees return a xml_root
         tree = ET.parse(kwargs["file"])
         root = tree.getroot()
@@ -38,7 +39,6 @@ def get_dict(**kwargs):
     
         #get list of all regions
         region_list = sorted([region.get("code") for region in root.iter("region")])
-
         # get regions
         for this_region in root.iter("region"):
             region = this_region.get("code")
@@ -63,7 +63,7 @@ def get_dict(**kwargs):
 
         #get generation
         total_generation = 0
-        RENEWABLES = {"BIOMASS_TURBINE", "BIOMASS_FURNANCE_CHP", "BIOMASS_FURNANCE", "BIO_CH4_TURBINE", "ROR", "WIND_ONS", "WIND_OFF", "PV1", "PV2"}
+        RENEWABLES = {"BIOMASS_TURBINE", "BIOMASS_FURNANCE_CHP", "BIOMASS_FURNANCE", "BIO_CH4_TURBINE", "ROR", "WIND_ONS", "WIND_OFF", "PV1", "PV2", "GEO"}
         for renewable in RENEWABLES:
             for this_region in root.iter("region"):
                 try:
@@ -85,12 +85,12 @@ def get_dict(**kwargs):
                     for data in conv.iter():
                         if data.get("code") == "used_capacity":
                             string_electricity_generation = data.text
-                            splitted_electricity_generation = [abs(Decimal(gen))/1000 for gen in string_electricity_generation.split(",") if bool(gen)]
+                            splitted_electricity_generation = [abs(Decimal(gen)) for gen in string_electricity_generation.split(",") if bool(gen)]
                             start_timeindex = data.get("start")
                             if start_timeindex.split("-")[0] == "1970":
                                 start_timeindex = "{}-1-1_0:0".format(year)
                             electricity_generation_dict[region][technology_code] = zero_appender(splitted_electricity_generation, start_timeindex, year)
-                            print(len(electricity_generation_dict[region][technology_code]), region, technology_code)
+                            # print(len(electricity_generation_dict[region][technology_code]), region, technology_code)
 
         
 
@@ -113,13 +113,13 @@ def get_dict(**kwargs):
                                     splitted_output_energy = []
                                     for energy in string_energy.split(","):
                                         if (bool(energy) and Decimal(energy)<=0):
-                                            splitted_input_energy.append(abs(Decimal(energy))/1000)
+                                            splitted_input_energy.append(abs(Decimal(energy)))
                                         elif bool(energy):
                                             splitted_input_energy.append(0)
                                         
                                     for energy in string_energy.split(","):
                                         if (bool(energy) and Decimal(energy)>=0):
-                                            splitted_output_energy.append(abs(Decimal(energy))/1000)
+                                            splitted_output_energy.append(abs(Decimal(energy)))
                                         elif bool(energy):
                                             splitted_output_energy.append(0)
                                     
@@ -143,7 +143,7 @@ def get_dict(**kwargs):
                                     splitted_input_energy = []
                                     for energy in string_energy.split(","):
                                         if bool(energy):
-                                            splitted_input_energy.append(abs(Decimal(energy))/1000)                                        
+                                            splitted_input_energy.append(abs(Decimal(energy)))                                        
                                                                             
                                     start_timeindex = data.get("start")
                                     if start_timeindex.split("-")[0] == "1970":
@@ -165,7 +165,7 @@ def get_dict(**kwargs):
                                         
                                     for energy in string_energy.split(","):
                                         if bool(energy):
-                                            splitted_output_energy.append(abs(Decimal(energy))/1000)
+                                            splitted_output_energy.append(abs(Decimal(energy)))
                                     
                                     start_timeindex = data.get("start")
                                     if start_timeindex.split("-")[0] == "1970":
@@ -240,6 +240,7 @@ def get_dict(**kwargs):
         #fixed cost, variable costs
         fopex_dict = {}
         vopex_dict = {}
+        capex_dict = {}
         opex_types = ["converter", "storage"]
         for this_region in root.iter("region"):
             region = this_region.get("code")
@@ -249,6 +250,7 @@ def get_dict(**kwargs):
                     if converter_storage not in fopex_dict.keys():
                         fopex_dict[converter_storage] = []
                         vopex_dict[converter_storage] = []
+                        capex_dict[converter_storage] = []
                     for data in elem.iter():
                         if data.get("code") == "fopex":
                             fopex = Decimal(data.text.split(",")[0])
@@ -257,6 +259,10 @@ def get_dict(**kwargs):
                         if data.get("code") == "vopex":
                             vopex_list = [Decimal(i) for i in data.text.split(",") if bool(i)]
                             vopex_dict[converter_storage].append(sum(vopex_list))
+
+                        if data.get("code") == "capex":
+                            capex = Decimal(data.text.split(",")[0])
+                            capex_dict[converter_storage].append(capex)
         
         for tech in fopex_dict.keys():
             fopex_dict[tech] = str(sum(fopex_dict[tech]))
@@ -273,14 +279,14 @@ def get_dict(**kwargs):
                     loss_dict[tech] = []
                 for data in storage.iter():
                     if data.get("code") == "energy_lost_by_transfer":
-                        storage_loss = [Decimal(i)/1000 for i in data.text.split(",") if bool(i)]
+                        storage_loss = [Decimal(i) for i in data.text.split(",") if bool(i)]
                         loss_dict[tech].append(sum(storage_loss))
         
 
         loss_dict["transmission"] = []
         for this_link in root.iter("link"):                
             link_loss = [elem.text for elem in this_link.findall(".//tr-converter/data[@code='losses_']")]
-            link_loss_decimal = [abs(Decimal(i))/1000 for i in link_loss[0].split(",") if bool(i)]
+            link_loss_decimal = [abs(Decimal(i)) for i in link_loss[0].split(",") if bool(i)]
             loss_dict["transmission"].append(sum(link_loss_decimal))
 
 
@@ -302,11 +308,10 @@ def get_dict(**kwargs):
         # Extract analysed year
         analysis_year = glob_internal_dict["annual_electricity_price_EUR/GWh"].attrib["start"][0:4]
 
-    big_dict = [region_list, analysis_year, str(system_cost), str(total_emission), str(total_generation),\
-        str(total_slack), str(total_curtailment), emission_region_dict, electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level,\
-        energy_flow_dict,added_capacity_dict, fopex_dict, vopex_dict, loss_dict]
-
-    return (big_dict)
-
+        big_dict = [region_list, analysis_year, str(system_cost), str(total_emission), str(total_generation),\
+            str(total_slack), str(total_curtailment), emission_region_dict, electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level,\
+            energy_flow_dict,added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict]
+        
+        return big_dict
 
 

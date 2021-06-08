@@ -6,7 +6,7 @@ SOURCE = "GENESYS-2"
 
 
 def append_entry(region_list, year, system_cost, emission, generation, slack, curtailment, emission_region_dict, electricity_generation_dict,\
-                input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, added_capacity_dict, fopex_dict, vopex_dict, loss_dict, scalars_list, timeseries_list):
+                input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict, scalars_list, timeseries_list):
 
     scalars_list.append(scalars_entry(region_list,"ALL","ALL","system cost", "ALL", "ALL", system_cost, "€", SOURCE))
     scalars_list.append(scalars_entry(region_list,"ALL","CO2","emissions", "ALL", "ALL", emission, "Gt", SOURCE))
@@ -65,6 +65,10 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
     for tech_code in vopex_dict.keys():
         input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code) 
         scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "variable cost", technology, technology_type, vopex_dict[tech_code], "€/a", SOURCE))
+
+    for tech_code in capex_dict.keys():
+        input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code)        
+        scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "investment cost", technology, technology_type, capex_dict[tech_code], "€/a", SOURCE))
 
     for tech_code in loss_dict.keys():
         input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code)        

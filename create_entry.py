@@ -18,9 +18,7 @@ def scalars_entry(region, input_energy, output_energy, parameter_name, tech, tec
 
 def timeseries_entry(region, input_energy, output_energy, parameter_name, tech, tech_type, year, series, unit, source, comment):
     timeindex_start = "{}-01-01 00:00:00".format(year)
-    ##TODO what is timeindex_stop?
     timeindex_stop = "{}-12-31 00:00:00".format(year)
-    ##TODO adjust time interval
     interval = "1h"
     return {
         "region": json.dumps(region) if type(region)==list else json.dumps([region]),

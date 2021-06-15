@@ -5,9 +5,9 @@ from append_entry_to_list import append_entry
 from write_into_csv import create_csv_files
 
 year_to_analyse = 2050
-SCENARIO_ID = 33        
+SCENARIO_ID = 39        
 # path to results
-path_results = "Resultfiles/"
+path_results = "Resultfiles/v5/"
 name_results_files = "AnalysedResult_{}.xml".format(year_to_analyse)
 
 def main():

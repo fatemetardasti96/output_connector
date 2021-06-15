@@ -203,6 +203,12 @@ def input_tech_techtype_extractor(tech_code):
             "electricity",
             "storage",
             "hydrogen fuelcell"
+        ],
+        "TRANSMISSION_IMPORT":[
+            "electricity",
+            "electricity",
+            "transmission",
+            "trade import"
         ]
 
     }

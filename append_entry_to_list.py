@@ -12,6 +12,7 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
     scalars_list.append(scalars_entry(region_list,"ALL","CO2","emissions", "ALL", "ALL", emission, "Gt", SOURCE))
     scalars_list.append(scalars_entry(region_list,"ALL","ALL","renewable generation", "ALL", "ALL", generation, "GWh", SOURCE))
     scalars_list.append(scalars_entry(region_list,"ALL","ALL","slack", "ALL", "ALL", slack, "GWh", SOURCE))
+    scalars_list.append(scalars_entry(region_list,"ALL","ALL","curtailment", "ALL", "ALL", curtailment, "GWh", SOURCE))
 
     for region in emission_region_dict.keys():
         scalars_list.append(scalars_entry(region, "ALL", "CO2", "emissions", "ALL", "ALL", emission_region_dict[region], "Gt/a", SOURCE))
@@ -23,7 +24,7 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
                     str(sum(electricity_generation_dict[region][tech_code])), "GWh/a", SOURCE))
 
             timeseries_list.append(timeseries_entry(region, input_energy, "electricity", "electricity generation", technology, technology_type, year,\
-                    [float(i) for i in electricity_generation_dict[region][tech_code]], "MWh/h", SOURCE, " "))
+                    [float(i)*1000 for i in electricity_generation_dict[region][tech_code]], "MWh/h", SOURCE, " "))
 
 
     for region in input_energy_dict:
@@ -32,7 +33,7 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
             scalars_list.append(scalars_entry(region, input_energy, output_energy, "input energy", technology, technology_type, str(sum(input_energy_dict[region][tech_code])), "GWh/a", SOURCE))
 
             timeseries_list.append(timeseries_entry(region, input_energy, output_energy, "input energy", technology, technology_type, year,\
-                    [float(i) for i in input_energy_dict[region][tech_code]], "MWh/h", SOURCE, " "))
+                    [float(i)*1000 for i in input_energy_dict[region][tech_code]], "MWh/h", SOURCE, " "))
 
 
     for region in output_energy_dict:
@@ -41,14 +42,14 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
             scalars_list.append(scalars_entry(region, input_energy, output_energy, "output energy", technology, technology_type, str(sum(output_energy_dict[region][tech_code])), "GWh/a", SOURCE))
 
             timeseries_list.append(timeseries_entry(region, input_energy, output_energy, "output energy", technology, technology_type, year,\
-                    [float(i) for i in output_energy_dict[region][tech_code]], "MWh/h", SOURCE, " "))
+                    [float(i)*1000 for i in output_energy_dict[region][tech_code]], "MWh/h", SOURCE, " "))
 
     for link in energy_flow_dict:
         regA, regB = link.split("_")
         scalars_list.append(scalars_entry([regA, regB], "electricity", "electricity", "energy flow", "transmission", "hvac", str(sum(energy_flow_dict[link])), "GWh/a", SOURCE))
 
         timeseries_list.append(timeseries_entry([regA, regB], "electricity", "electricity", "energy flow", "transmission", "hvac", year,\
-                    [float(i) for i in energy_flow_dict[link]], "MWh/h", SOURCE, " "))
+                    [float(i)*1000 for i in energy_flow_dict[link]], "MWh/h", SOURCE, " "))
 
 
     for region in added_capacity_dict:

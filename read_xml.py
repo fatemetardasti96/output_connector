@@ -63,7 +63,7 @@ def get_dict(**kwargs):
 
         #get generation
         total_generation = 0
-        RENEWABLES = {"BIOMASS_TURBINE", "BIOMASS_FURNANCE_CHP", "BIOMASS_FURNANCE", "BIO_CH4_TURBINE", "ROR", "WIND_ONS", "WIND_OFF", "PV1", "PV2", "GEO"}
+        RENEWABLES = {"ROR", "WIND_ONS", "WIND_OFF", "PV1", "PV2"}
         for renewable in RENEWABLES:
             for this_region in root.iter("region"):
                 try:
@@ -198,7 +198,7 @@ def get_dict(**kwargs):
             string_slack = [load.text for load in this_region.findall(".//region_internal/data[@code='remaining_residual_load']")]
             decimal_slack = [Decimal(slack_value) for slack_value in string_slack[0].split(",") if bool(slack_value)]
             positive_slack = [val for val in decimal_slack if val>=0]
-            negative_slack = [val for val in decimal_slack if val<0]
+            negative_slack = [abs(val) for val in decimal_slack if val<0]
             total_slack += sum(positive_slack)
             total_curtailment += sum(negative_slack)
         # print("slack ",total_slack)
@@ -268,6 +268,8 @@ def get_dict(**kwargs):
             fopex_dict[tech] = str(sum(fopex_dict[tech]))
         for tech in vopex_dict.keys():
             vopex_dict[tech] = str(sum(vopex_dict[tech]))
+        for tech in capex_dict.keys():
+            capex_dict[tech] = str(sum(capex_dict[tech]))
         
         #losses
         loss_dict = {}

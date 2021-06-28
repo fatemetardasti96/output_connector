@@ -11,8 +11,13 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
     scalars_list.append(scalars_entry(region_list,"ALL","ALL","system cost", "ALL", "ALL", system_cost, "€", SOURCE))
     scalars_list.append(scalars_entry(region_list,"ALL","CO2","emissions", "ALL", "ALL", emission, "Gt", SOURCE))
     scalars_list.append(scalars_entry(region_list,"ALL","ALL","renewable generation", "ALL", "ALL", generation, "GWh", SOURCE))
-    scalars_list.append(scalars_entry(region_list,"ALL","ALL","slack", "ALL", "ALL", slack, "GWh", SOURCE))
-    scalars_list.append(scalars_entry(region_list,"ALL","ALL","curtailment", "ALL", "ALL", curtailment, "GWh", SOURCE))
+    # scalars_list.append(scalars_entry(region_list,"ALL","ALL","slack", "ALL", "ALL", slack, "GWh", SOURCE))
+    # scalars_list.append(scalars_entry(region_list,"ALL","ALL","curtailment", "ALL", "ALL", curtailment, "GWh", SOURCE))
+
+    for region in slack.keys():
+        scalars_list.append(scalars_entry(region, "ALL", "ALL", "slack", "ALL", "ALL", slack[region], "GWh", SOURCE))
+    for region in curtailment.keys():
+        scalars_list.append(scalars_entry(region, "ALL", "ALL", "curtailment", "ALL", "ALL", curtailment[region], "GWh", SOURCE))
 
     for region in emission_region_dict.keys():
         scalars_list.append(scalars_entry(region, "ALL", "CO2", "emissions", "ALL", "ALL", emission_region_dict[region], "Gt/a", SOURCE))

@@ -192,15 +192,31 @@ def get_dict(**kwargs):
                         
         
 
-        total_slack = 0
-        total_curtailment = 0
+        # total_slack = 0
+        regional_slack = {}
+        regional_curtailment = {}
+        # total_curtailment = 0
         for this_region in root.iter("region"):
-            string_slack = [load.text for load in this_region.findall(".//region_internal/data[@code='remaining_residual_load']")]
-            decimal_slack = [Decimal(slack_value) for slack_value in string_slack[0].split(",") if bool(slack_value)]
-            positive_slack = [val for val in decimal_slack if val>=0]
-            negative_slack = [abs(val) for val in decimal_slack if val<0]
-            total_slack += sum(positive_slack)
-            total_curtailment += sum(negative_slack)
+            region = this_region.get("code")
+            # print([e for e in this_region.iter()])
+            for elem in this_region.iter("region_internal"):
+                for data in elem.iter():
+                    if data.get("code") == "remaining_residual_load":
+                        string_residual_load = data.text
+                        residual_load_decimal = [Decimal(load) for load in string_residual_load.split(",") if bool(load)]            
+                        slack = [i if i>0 else 0 for i in residual_load_decimal]
+                        curtailment = [abs(i) if i<0 else 0 for i in residual_load_decimal]
+                        
+                        regional_slack[region] = sum(slack)
+                        regional_curtailment[region] = sum(curtailment)
+
+
+            # string_slack = [load.text for load in this_region.findall(".//region_internal/data[@code='remaining_residual_load']")]
+            # decimal_slack = [Decimal(slack_value) for slack_value in string_slack[0].split(",") if bool(slack_value)]
+            # positive_slack = [val for val in decimal_slack if val>=0]
+            # negative_slack = [abs(val) for val in decimal_slack if val<0]
+            # total_slack += sum(positive_slack)
+            # total_curtailment += sum(negative_slack)
         # print("slack ",total_slack)
         # print("curtailment", total_curtailment)
 
@@ -311,7 +327,7 @@ def get_dict(**kwargs):
         analysis_year = glob_internal_dict["annual_electricity_price_EUR/GWh"].attrib["start"][0:4]
 
         big_dict = [region_list, analysis_year, str(system_cost), str(total_emission), str(total_generation),\
-            str(total_slack), str(total_curtailment), emission_region_dict, electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level,\
+            regional_slack, regional_curtailment, emission_region_dict, electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level,\
             energy_flow_dict,added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict]
         
         return big_dict

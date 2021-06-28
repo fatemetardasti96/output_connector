@@ -4,10 +4,10 @@ import read_xml
 from append_entry_to_list import append_entry
 from write_into_csv import create_csv_files
 
-year_to_analyse = 2050
-SCENARIO_ID = 39        
+year_to_analyse = 2016
+SCENARIO_ID = 40        
 # path to results
-path_results = "Resultfiles/v5/"
+path_results = "Resultfiles/v7/"
 name_results_files = "AnalysedResult_{}.xml".format(year_to_analyse)
 
 def main():
@@ -23,7 +23,7 @@ def main():
             region_list, year, system_cost, emission, generation, slack, curtailment, emission_region_dict, electricity_generation_dict,\
                 input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict\
                 = read_xml.get_dict(file=path_results + scen + "/" + name_results_files, scenario=SCENARIO_ID, year=year_to_analyse)
-            # result = read_xml.get_dict(file=path_results + scen + "/" + name_results_files, scenario=SCENARIO_ID, year=year_to_analyse)
+            
             
             scalars_list = []
             timeseries_list = []   

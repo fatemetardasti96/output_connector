@@ -6,9 +6,9 @@ from datetime import datetime
 from append_entry_to_list import append_entry
 from write_into_csv import create_csv_files
 
-SCENARIO_ID = 43        
+SCENARIO_ID = 58        
 scenario_type = "Base-Scenario"
-dirpath = "Resultfiles/v4/" + scenario_type
+dirpath = "Resultfiles/v11/" + scenario_type
 
 output_dirname = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 Path('genesys/'+output_dirname).mkdir()
@@ -24,8 +24,8 @@ def main():
             # Extract data from Result file
             print("Start reading dictionaries")
             region_list, year, system_cost, emission, generation, slack, curtailment, emission_region_dict, electricity_generation_dict,\
-                input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict, vopex_dict,\
-                    capex_dict, loss_dict, total_load = read_xml.get_dict(file=filepath, scenario=SCENARIO_ID)
+                input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict,\
+                    vopex_dict, total_vopex, capex_dict, loss_dict, total_load = read_xml.get_dict(file=filepath, scenario=SCENARIO_ID, scenario_type="base")
             
             # print("total load for each region: ", total_load)
             print("sum of total load for ", year, " : ", sum(total_load.values()))
@@ -34,8 +34,9 @@ def main():
             timeseries_list = []   
             
             print("write dictionaries into csv")
-            append_entry(region_list, year, system_cost, emission, generation, slack, curtailment, emission_region_dict, electricity_generation_dict,\
-                input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict, scalars_list, timeseries_list)            
+            append_entry(region_list, year, system_cost, emission, generation, slack, curtailment, emission_region_dict,\
+                electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, capacity_dict,\
+                added_capacity_dict, fopex_dict, vopex_dict, total_vopex, capex_dict, loss_dict, scalars_list, timeseries_list)            
 
             output_dir = "genesys/" + output_dirname + '/' + scenario_type +  '/' + year
             Path(output_dir).mkdir(parents=True, exist_ok=True)

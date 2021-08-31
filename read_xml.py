@@ -6,6 +6,7 @@ import math
 from date_adjust import hour_iterator
 from parameter_extractor import input_tech_techtype_extractor
 from added_capacity import added_capacity
+from emission import get_emission
 
 
 def zero_appender(timeserie, start_timeindex, year):
@@ -24,6 +25,7 @@ def generate_electricity(tech_code):
 
 def get_dict(**kwargs):
     scenario = kwargs["scenario"]
+    scenario_type = kwargs["scenario_type"]
     if os.path.isfile(kwargs["file"]):
         print(kwargs["file"])
         print("File exists {}, now parsing!".format(kwargs["file"]))
@@ -54,15 +56,8 @@ def get_dict(**kwargs):
         region_list = sorted([region.get("code") for region in root.iter("region")])
         
         print("get emission")
-        total_emission = 0
-        emission_region_dict = {}
-        for this_region in root.iter("region"):
-            emission = [Decimal(emission.text[:-1])/10**9 for emission in this_region.findall(".//region_internal/data[@code='annual_co2_emissions']")]
-            emission_region_dict[this_region.get("code")] = str(emission[0]) if not math.isnan(emission[0]) else 0
-            if not math.isnan(emission[0]):
-                total_emission += emission[0]
+        emission_region_dict, total_emission = get_emission(root, scenario_type)
         
-
 
         print("get renewable generation")
         total_generation = 0
@@ -286,6 +281,26 @@ def get_dict(**kwargs):
             vopex_dict[tech] = str(sum(vopex_dict[tech]))
         for tech in capex_dict.keys():
             capex_dict[tech] = str(sum(capex_dict[tech]))
+
+
+        #vopex from primary energy
+        vopex_dict_pr = {}
+        for this_region in root.iter("region"):
+            region = this_region.get("code")
+            vopex_dict_pr[region] = {}
+            for elem in this_region.iter("primary_energy"):
+                code = elem.get("code")
+                for data in elem.iter():
+                    if data.get("code") == "vopex_":
+                        vopex_list = [Decimal(i) for i in data.text.split(",") if bool(i)]
+                        vopex_dict_pr[region][code] = sum(vopex_list)
+
+        total_vopex = 0
+        for reg in vopex_dict_pr.keys():
+            for tech in vopex_dict_pr[reg].keys():
+                total_vopex = total_vopex + vopex_dict_pr[reg][tech]
+
+
         
         print("get loss")
         loss_dict = {}
@@ -315,7 +330,7 @@ def get_dict(**kwargs):
 
         big_dict = [region_list, analysed_year, str(system_cost), str(total_emission), str(total_generation),\
             regional_slack, regional_curtailment, emission_region_dict, electricity_generation_dict, input_energy_dict, output_energy_dict, storage_level,\
-            energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict, vopex_dict, capex_dict, loss_dict, total_load]
+            energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict, vopex_dict, total_vopex, capex_dict, loss_dict, total_load]
         
         return big_dict
 

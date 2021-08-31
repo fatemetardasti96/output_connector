@@ -190,7 +190,7 @@ def input_tech_techtype_extractor(tech_code):
             "H2",
             "electricity",
             "storage",
-            "hydrogen fuelcell"
+            "hydrogen gas"
         ],
         "H2_storage_gasturbine":[
             "electricity",

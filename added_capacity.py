@@ -80,8 +80,12 @@ def added_capacity(SCENARIO_ID, filepath, year):
                 added_capacity = float(capacity_value) - float(installed_capacity_value)
             else:
                 added_capacity = float(capacity_value) - float(installed_capacity_value/1000.0)
+            
+            added_capacity_rounded = round(added_capacity, 6)+0
+            if added_capacity_rounded<0:
+                added_capacity_rounded = 0
                 
-            added_capacity_dict[region][tech_code] = str(round(added_capacity, 6)+0)
+            added_capacity_dict[region][tech_code] = str(added_capacity_rounded)
 
 
     return capacity_dict, added_capacity_dict

@@ -61,18 +61,18 @@ def append_entry(region_list, year, system_cost, emission, generation, slack, cu
             scalars_list.append(scalars_entry(region, input_energy, output_energy, "added capacity", technology, technology_type, added_capacity_dict[region][tech_code], "GW", SOURCE))
 
     for region in capacity_dict:
-        for tech_code in added_capacity_dict[region]:
+        for tech_code in capacity_dict[region]:
             input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code)        
-            scalars_list.append(scalars_entry(region, input_energy, output_energy, "capacity", technology, technology_type, added_capacity_dict[region][tech_code], "GW", SOURCE))
+            scalars_list.append(scalars_entry(region, input_energy, output_energy, "capacity", technology, technology_type, capacity_dict[region][tech_code], "GW", SOURCE))
 
 
-    for tech_code in fopex_dict.keys():
-        input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code)        
-        scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "fixed cost", technology, technology_type, fopex_dict[tech_code], "€", SOURCE))
+    # for tech_code in fopex_dict.keys():
+        # input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code)        
+        # scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "fixed cost", technology, technology_type, fopex_dict[tech_code], "€", SOURCE))
 
-    for tech_code in vopex_dict.keys():
-        input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code) 
-        scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "variable cost", technology, technology_type, vopex_dict[tech_code], "€", SOURCE))
+    # for tech_code in vopex_dict.keys():
+        # input_energy, output_energy, technology, technology_type = input_tech_techtype_extractor(tech_code) 
+        # scalars_list.append(scalars_entry(region_list, input_energy, output_energy, "variable cost", technology, technology_type, vopex_dict[tech_code], "€", SOURCE))
 
     # for region in vopex_dict:
     #     for tech_code in vopex_dict[region]:

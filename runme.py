@@ -8,7 +8,7 @@ from write_into_csv import create_csv_files
 
 SCENARIO_ID = 58        
 scenario_type = "Base-Scenario"
-dirpath = "Resultfiles/v11/" + scenario_type
+dirpath = "Resultfiles/v12/" + scenario_type
 
 output_dirname = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 Path('genesys/'+output_dirname).mkdir()
@@ -27,7 +27,6 @@ def main():
                 input_energy_dict, output_energy_dict, storage_level_dict, energy_flow_dict, capacity_dict, added_capacity_dict, fopex_dict,\
                     vopex_dict, total_vopex, capex_dict, loss_dict, total_load = read_xml.get_dict(file=filepath, scenario=SCENARIO_ID, scenario_type="base")
             
-            # print("total load for each region: ", total_load)
             print("sum of total load for ", year, " : ", sum(total_load.values()))
 
             scalars_list = []
